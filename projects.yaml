@@ -1,0 +1,186 @@
+project:
+  name: project_scaffold
+
+templates:
+  basic:
+    description: Basic Python project structure.
+
+    structure:
+      folders:
+        - src
+        - tests
+        - docs
+        - scripts
+        - configs
+
+      files:
+        README.md: |
+          # {{ project_name }}
+
+          Basic Python project. Enjoy.
+
+        requirements.txt: ""
+
+        .gitignore: |
+          __pycache__/
+          .venv/
+          *.pyc
+
+        src/__init__.py: ""
+
+        tests/test_main.py: |
+          def test_example():
+              assert True
+
+  package:
+    description: Installable Python package structure.
+
+    structure:
+      folders:
+        - src/{{ project_name }}
+        - tests
+        - docs
+
+      files:
+        README.md: |
+          # {{ project_name }}
+
+          Installable Python package.
+
+        pyproject.toml: |
+          [project]
+          name = "{{ project_name }}"
+          version = "0.1.0"
+          description = "A Python package."
+          requires-python = ">=3.10"
+
+          [build-system]
+          requires = ["setuptools>=61.0"]
+          build-backend = "setuptools.build_meta"
+
+        src/{{ project_name }}/__init__.py: ""
+
+        src/{{ project_name }}/main.py: |
+          def main():
+              print("Hello from {{ project_name }}")
+
+        tests/test_main.py: |
+          def test_example():
+              assert True
+
+        .gitignore: |
+          __pycache__/
+          .venv/
+          *.pyc
+          *.egg-info/
+
+  cli:
+    description: Python CLI application structure.
+
+    structure:
+      folders:
+        - src/{{ project_name }}
+        - tests
+        - docs
+
+      files:
+        README.md: |
+          # {{ project_name }}
+
+          Python CLI application.
+
+        pyproject.toml: |
+          [project]
+          name = "{{ project_name }}"
+          version = "0.1.0"
+          description = "A Python CLI application."
+          requires-python = ">=3.10"
+
+          [project.scripts]
+          {{ project_name }} = "{{ project_name }}.cli:main"
+
+          [build-system]
+          requires = ["setuptools>=61.0"]
+          build-backend = "setuptools.build_meta"
+
+        src/{{ project_name }}/__init__.py: ""
+
+        src/{{ project_name }}/cli.py: |
+          import argparse
+
+          def main():
+              parser = argparse.ArgumentParser(
+                  prog="{{ project_name }}",
+                  description="CLI application."
+              )
+              parser.add_argument("--version", action="store_true")
+              args = parser.parse_args()
+
+              if args.version:
+                  print("{{ project_name }} 0.1.0")
+
+        tests/test_cli.py: |
+          def test_example():
+              assert True
+
+        .gitignore: |
+          __pycache__/
+          .venv/
+          *.pyc
+          *.egg-info/
+
+  computer_vision:
+    description: Computer vision experiment/project structure.
+
+    structure:
+      folders:
+        - src
+        - tests
+        - docs
+        - scripts
+        - configs
+        - data/raw
+        - data/processed
+        - models
+        - outputs
+        - notebooks
+
+      files:
+        README.md: |
+          # {{ project_name }}
+
+          Computer vision project structure.
+
+        requirements.txt: |
+          numpy
+          opencv-python
+          matplotlib
+
+        .gitignore: |
+          __pycache__/
+          .venv/
+          *.pyc
+          data/raw/
+          data/processed/
+          models/
+          outputs/
+
+        src/__init__.py: ""
+
+        src/main.py: |
+          def main():
+              print("Computer vision project: {{ project_name }}")
+
+          if __name__ == "__main__":
+              main()
+
+        configs/default.yaml: |
+          project_name: {{ project_name }}
+          input_path: data/raw
+          output_path: outputs
+
+        tests/test_main.py: |
+          def test_example():
+              assert True
+
+
