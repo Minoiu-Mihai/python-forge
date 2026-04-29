@@ -43,7 +43,7 @@ This will:
 
 
 ## Features
----
+
 - Project scaffolding from templates
 - Custom and built-in templates
 - Automatic virtual environment creation
