@@ -183,4 +183,650 @@ templates:
           def test_example():
               assert True
 
+  python_engineering:
+    description: Professional Python engineering project for tools, pipelines, experiments, and technical validation.
+
+    structure:
+      folders:
+        - .vscode
+        - configs
+        - configs/experiments
+        - data/raw
+        - data/processed
+        - data/samples
+        - docs
+        - notebooks
+        - scripts
+        - src/{{ package_name }}
+        - src/{{ package_name }}/core
+        - src/{{ package_name }}/io
+        - src/{{ package_name }}/processing
+        - src/{{ package_name }}/vision
+        - src/{{ package_name }}/metrics
+        - src/{{ package_name }}/utils
+        - tests/unit
+        - tests/integration
+        - outputs/figures
+        - outputs/logs
+        - outputs/reports
+        - outputs/runs
+
+      files:
+        README.md: |
+          # {{ project_name }}
+
+          Professional Python engineering project.
+
+          ## Purpose
+
+          Describe the technical problem this project solves.
+
+          ## Structure
+
+          - `configs/`: configuration files.
+          - `data/`: input and processed data.
+          - `docs/`: technical documentation.
+          - `notebooks/`: exploratory analysis.
+          - `scripts/`: executable helper scripts.
+          - `src/`: source code.
+          - `tests/`: unit and integration tests.
+          - `outputs/`: generated artifacts.
+
+          ## Quick start
+
+          ```bash
+          python -m venv .venv
+          ```
+
+          On Windows PowerShell:
+
+          ```powershell
+          .venv\Scripts\Activate.ps1
+          ```
+
+          On Linux/macOS:
+
+          ```bash
+          source .venv/bin/activate
+          ```
+
+          Install the project in editable mode:
+
+          ```bash
+          pip install -e ".[dev]"
+          ```
+
+          Run tests:
+
+          ```bash
+          pytest
+          ```
+
+          Run the CLI:
+
+          ```bash
+          {{ project_name }} --config configs/default.yaml
+          ```
+
+        pyproject.toml: |
+          [project]
+          name = "{{ project_name }}"
+          version = "0.1.0"
+          description = "Professional Python engineering project."
+          requires-python = ">=3.10"
+          dependencies = [
+              "pyyaml>=6.0",
+          ]
+
+          [project.optional-dependencies]
+          dev = [
+              "pytest>=8.0",
+              "ruff>=0.4",
+              "mypy>=1.8",
+          ]
+
+          numeric = [
+              "numpy>=1.26",
+          ]
+
+          vision = [
+              "opencv-python>=4.9",
+              "matplotlib>=3.8",
+          ]
+
+          [project.scripts]
+          {{ project_name }} = "{{ package_name }}.cli:main"
+
+          [build-system]
+          requires = ["setuptools>=68", "wheel"]
+          build-backend = "setuptools.build_meta"
+
+          [tool.pytest.ini_options]
+          testpaths = ["tests"]
+          pythonpath = ["src"]
+
+          [tool.ruff]
+          line-length = 100
+          target-version = "py310"
+
+          [tool.mypy]
+          python_version = "3.10"
+          warn_return_any = true
+          warn_unused_configs = true
+          ignore_missing_imports = true
+
+        pyrightconfig.json: |
+          {
+            "include": ["src", "tests", "scripts"],
+            "extraPaths": ["./src", "./scripts"]"
+            "executionEnvironments": [
+              {
+                "root": ".",
+                "extraPaths": ["src"]
+              }
+            ],
+            "typeCheckingMode": "basic"
+          }
+
+        .vscode/settings.json: |
+          {
+            "python.analysis.extraPaths": ["./src", "./scripts"],
+            "python.testing.pytestEnabled": true,
+            "python.testing.pytestArgs": ["tests"],
+            "python.terminal.activateEnvironment": true,
+            "python.defaultInterpreterPath": "{{ venv_python_path }}"
+          }
+
+        .gitignore: |
+          __pycache__/
+          *.py[cod]
+          .venv/
+          venv/
+          .env
+
+          .pytest_cache/
+          .mypy_cache/
+          .ruff_cache/
+
+          data/raw/*
+          data/processed/*
+          outputs/*
+          !data/raw/.gitkeep
+          !data/processed/.gitkeep
+          !data/samples/.gitkeep
+          !outputs/figures/.gitkeep
+          !outputs/logs/.gitkeep
+          !outputs/reports/.gitkeep
+          !outputs/runs/.gitkeep
+
+          *.log
+          *.mp4
+          *.avi
+          *.bag
+          *.db3
+
+        .env.example: |
+          PROJECT_ENV=development
+          DATA_DIR=data
+          OUTPUT_DIR=outputs
+
+        Makefile: |
+          install:
+          	python -m pip install -e ".[dev]"
+
+          install-numeric:
+          	python -m pip install -e ".[dev,numeric]"
+
+          install-vision:
+          	python -m pip install -e ".[dev,vision]"
+
+          test:
+          	pytest
+
+          lint:
+          	ruff check src tests scripts
+
+          format:
+          	ruff format src tests scripts
+
+          typecheck:
+          	mypy src
+
+          clean:
+          	python -c "import shutil, pathlib; [shutil.rmtree(p, ignore_errors=True) for p in ['.pytest_cache', '.mypy_cache', '.ruff_cache']]"
+
+        configs/default.yaml: |
+          project:
+            name: "{{ project_name }}"
+            package: "{{ package_name }}"
+
+          paths:
+            data_dir: data
+            output_dir: outputs
+
+          runtime:
+            seed: 42
+            device: cpu
+
+        configs/experiments/example_experiment.yaml: |
+          experiment:
+            name: example_experiment
+            description: Example experiment configuration.
+
+          input:
+            source: data/samples
+
+          output:
+            directory: outputs/runs/example_experiment
+
+        configs/logging.yaml: |
+          version: 1
+          disable_existing_loggers: false
+
+          formatters:
+            standard:
+              format: "%(asctime)s | %(levelname)s | %(name)s | %(message)s"
+
+          handlers:
+            console:
+              class: logging.StreamHandler
+              formatter: standard
+              level: INFO
+
+          root:
+            handlers: [console]
+            level: INFO
+
+        docs/architecture.md: |
+          # Architecture
+
+          Describe the main modules, data flow, and design decisions.
+
+        docs/usage.md: |
+          # Usage
+
+          Explain how to install, configure, and run the project.
+
+        docs/experiments.md: |
+          # Experiments
+
+          Document experiment configurations, datasets, metrics, and results.
+
+        docs/decisions.md: |
+          # Decision Log
+
+          ## 0001 - Initial structure
+
+          Context:
+          Decision:
+          Consequences:
+
+        data/README.md: |
+          # Data
+
+          This directory stores local data.
+
+          Recommended usage:
+
+          - `raw/`: original input data.
+          - `processed/`: generated or cleaned data.
+          - `samples/`: small files safe to commit.
+
+          Large files should not be committed to Git.
+
+        data/raw/.gitkeep: ""
+        data/processed/.gitkeep: ""
+        data/samples/.gitkeep: ""
+
+        outputs/figures/.gitkeep: ""
+        outputs/logs/.gitkeep: ""
+        outputs/reports/.gitkeep: ""
+        outputs/runs/.gitkeep: ""
+
+        src/{{ package_name }}/__init__.py: |
+          """{{ project_name }} package."""
+
+          __version__ = "0.1.0"
+
+        src/{{ package_name }}/cli.py: |
+          from __future__ import annotations
+
+          import argparse
+
+          from {{ package_name }}.config import load_config
+
+
+          def build_parser() -> argparse.ArgumentParser:
+              parser = argparse.ArgumentParser(
+                  prog="{{ project_name }}",
+                  description="Professional Python engineering project.",
+              )
+              parser.add_argument(
+                  "--config",
+                  default="configs/default.yaml",
+                  help="Path to configuration file.",
+              )
+              return parser
+
+
+          def main() -> None:
+              parser = build_parser()
+              args = parser.parse_args()
+
+              config = load_config(args.config)
+              project = config.get("project", {})
+              print(f"Loaded project: {project.get('name', '{{ project_name }}')}")
+
+
+          if __name__ == "__main__":
+              main()
+
+        src/{{ package_name }}/config.py: |
+          from __future__ import annotations
+
+          from pathlib import Path
+          from typing import Any
+
+          import yaml
+
+
+          def load_config(path: str | Path) -> dict[str, Any]:
+              config_path = Path(path)
+
+              if not config_path.exists():
+                  raise FileNotFoundError(f"Configuration file not found: {config_path}")
+
+              with config_path.open("r", encoding="utf-8") as file:
+                  data = yaml.safe_load(file) or {}
+
+              if not isinstance(data, dict):
+                  raise ValueError(f"Configuration file must contain a YAML mapping: {config_path}")
+
+              return data
+
+        src/{{ package_name }}/logging_utils.py: |
+          from __future__ import annotations
+
+          import logging
+          import logging.config
+          from pathlib import Path
+          from typing import Any
+
+          import yaml
+
+
+          def setup_logging(config_path: str | Path = "configs/logging.yaml") -> None:
+              path = Path(config_path)
+
+              if not path.exists():
+                  logging.basicConfig(level=logging.INFO)
+                  return
+
+              with path.open("r", encoding="utf-8") as file:
+                  config: dict[str, Any] = yaml.safe_load(file) or {}
+
+              logging.config.dictConfig(config)
+
+        src/{{ package_name }}/core/__init__.py: ""
+
+        src/{{ package_name }}/core/pipeline.py: |
+          from __future__ import annotations
+
+          from typing import Any
+
+
+          class Pipeline:
+              def __init__(self, config: dict[str, Any]) -> None:
+                  self.config = config
+
+              def run(self) -> None:
+                  raise NotImplementedError("Implement the pipeline logic.")
+
+        src/{{ package_name }}/io/__init__.py: ""
+
+        src/{{ package_name }}/io/files.py: |
+          from __future__ import annotations
+
+          from pathlib import Path
+
+
+          def ensure_directory(path: str | Path) -> Path:
+              directory = Path(path)
+              directory.mkdir(parents=True, exist_ok=True)
+              return directory
+
+        src/{{ package_name }}/io/images.py: |
+          from __future__ import annotations
+
+          from pathlib import Path
+
+
+          def list_images(directory: str | Path) -> list[Path]:
+              path = Path(directory)
+              extensions = {".jpg", ".jpeg", ".png", ".bmp", ".tiff"}
+              return sorted(file for file in path.iterdir() if file.suffix.lower() in extensions)
+
+        src/{{ package_name }}/io/video.py: |
+          from __future__ import annotations
+
+          from pathlib import Path
+
+
+          def validate_video_path(path: str | Path) -> Path:
+              video_path = Path(path)
+
+              if not video_path.exists():
+                  raise FileNotFoundError(f"Video file not found: {video_path}")
+
+              return video_path
+
+        src/{{ package_name }}/processing/__init__.py: ""
+
+        src/{{ package_name }}/processing/transforms.py: |
+          from __future__ import annotations
+
+
+          def clamp(value: float, minimum: float, maximum: float) -> float:
+              if minimum > maximum:
+                  raise ValueError("minimum must be less than or equal to maximum")
+
+              return max(minimum, min(value, maximum))
+
+
+          def normalize_value(value: float, minimum: float, maximum: float) -> float:
+              if maximum == minimum:
+                  raise ValueError("maximum and minimum must be different")
+
+              return (value - minimum) / (maximum - minimum)
+
+        src/{{ package_name }}/vision/__init__.py: ""
+
+        src/{{ package_name }}/vision/detection.py: |
+          from __future__ import annotations
+
+
+          def placeholder_detection() -> None:
+              raise NotImplementedError("Implement detection logic.")
+
+        src/{{ package_name }}/vision/tracking.py: |
+          from __future__ import annotations
+
+
+          def placeholder_tracking() -> None:
+              raise NotImplementedError("Implement tracking logic.")
+
+        src/{{ package_name }}/vision/visualization.py: |
+          from __future__ import annotations
+
+
+          def placeholder_visualization() -> None:
+              raise NotImplementedError("Implement visualization logic.")
+
+        src/{{ package_name }}/metrics/__init__.py: ""
+
+        src/{{ package_name }}/metrics/evaluation.py: |
+          from __future__ import annotations
+
+
+          def compute_success_rate(successes: int, total: int) -> float:
+              if total <= 0:
+                  raise ValueError("total must be greater than zero")
+
+              return successes / total
+
+        src/{{ package_name }}/utils/__init__.py: ""
+
+        src/{{ package_name }}/utils/paths.py: |
+          from __future__ import annotations
+
+          from pathlib import Path
+
+
+          PROJECT_ROOT = Path(__file__).resolve().parents[3]
+
+
+          def project_path(*parts: str) -> Path:
+              return PROJECT_ROOT.joinpath(*parts)
+
+        src/{{ package_name }}/utils/timing.py: |
+          from __future__ import annotations
+
+          import time
+          from collections.abc import Iterator
+          from contextlib import contextmanager
+
+
+          @contextmanager
+          def timer(name: str) -> Iterator[None]:
+              start = time.perf_counter()
+              try:
+                  yield
+              finally:
+                  elapsed = time.perf_counter() - start
+                  print(f"{name}: {elapsed:.4f} s")
+
+        scripts/bootstrap.py: |
+          from __future__ import annotations
+
+          from pathlib import Path
+          import sys
+
+
+          PROJECT_ROOT = Path(__file__).resolve().parents[1]
+          SRC_PATH = PROJECT_ROOT / "src"
+
+          if str(SRC_PATH) not in sys.path:
+              sys.path.insert(0, str(SRC_PATH))
+
+
+        scripts/run_demo.py: |
+          from __future__ import annotations
+
+          import bootstrap  # noqa: F401
+
+          from {{ package_name }}.config import load_config
+
+
+          def main() -> None:
+              config = load_config("configs/default.yaml")
+              print(config)
+
+
+          if __name__ == "__main__":
+              main()
+
+        scripts/benchmark.py: |
+
+          from __future__ import annotations
+
+          import bootstrap  # noqa: F401
+
+          from {{ package_name }}.utils.timing import timer
+
+
+          def main() -> None:
+              with timer("benchmark"):
+                  print("Run benchmark here.")
+
+
+          if __name__ == "__main__":
+              main()
+
+        scripts/prepare_data.py: |
+          def main() -> None:
+              print("Prepare data here.")
+
+
+          if __name__ == "__main__":
+              main()
+
+        tests/conftest.py: ""
+
+        tests/unit/test_config.py: |
+          from {{ package_name }}.config import load_config
+
+
+          def test_load_config():
+              config = load_config("configs/default.yaml")
+              assert "project" in config
+
+        tests/unit/test_pipeline.py: |
+          import pytest
+
+          from {{ package_name }}.core.pipeline import Pipeline
+
+
+          def test_pipeline_run_not_implemented():
+              pipeline = Pipeline(config={})
+
+              with pytest.raises(NotImplementedError):
+                  pipeline.run()
+
+        tests/unit/test_paths.py: |
+          from {{ package_name }}.utils.paths import PROJECT_ROOT, project_path
+
+
+          def test_project_root_points_to_project_directory():
+              assert PROJECT_ROOT.name == "{{ project_name }}"
+
+
+          def test_project_path_returns_path():
+              path = project_path("configs", "default.yaml")
+              assert path.name == "default.yaml"
+
+        tests/unit/test_transforms.py: |
+          import pytest
+
+          from {{ package_name }}.processing.transforms import clamp, normalize_value
+
+
+          def test_clamp_inside_range():
+              assert clamp(5.0, 0.0, 10.0) == 5.0
+
+
+          def test_clamp_below_range():
+              assert clamp(-1.0, 0.0, 10.0) == 0.0
+
+
+          def test_clamp_above_range():
+              assert clamp(12.0, 0.0, 10.0) == 10.0
+
+
+          def test_normalize_value():
+              assert normalize_value(5.0, 0.0, 10.0) == 0.5
+
+
+          def test_normalize_value_rejects_invalid_range():
+              with pytest.raises(ValueError):
+                  normalize_value(1.0, 2.0, 2.0)
+
+        tests/integration/test_cli.py: |
+          from {{ package_name }}.cli import build_parser
+
+
+          def test_cli_parser():
+              parser = build_parser()
+              args = parser.parse_args([])
+              assert args.config == "configs/default.yaml"
+
 

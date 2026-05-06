@@ -3,6 +3,9 @@ from pathlib import Path
 import subprocess
 import logging as l
 import argparse
+import re
+import os
+
 
 
 l.basicConfig(
@@ -11,6 +14,35 @@ l.basicConfig(
 )
 
 CONFIG_FILE = "projects.yaml"
+
+
+def normalize_package_name(project_name):
+    package_name = project_name.strip().lower()
+    package_name = package_name.replace("-", "_").replace(" ", "_")
+    package_name = re.sub(r"[^a-zA-Z0-9_]", "_", package_name)
+    
+    if package_name and package_name[0].isdigit():
+        package_name = f"_{package_name}"
+    
+    return package_name
+
+def get_venv_python_path():
+    
+    if os.name == "nt":
+        return "${workspaceFolder}/.venv/Scripts/python.exe"
+    
+    return "${workspaceFolder}/.venv/bin/python"
+        
+
+def render_template_text(text, project_name):
+    package_name = normalize_package_name(project_name)
+    venv_python_path = get_venv_python_path()
+    return (
+        text
+        .replace("{{ project_name }}", project_name)
+        .replace("{{ package_name }}", package_name)
+        .replace("{{ venv_python_path }}", venv_python_path)
+    )
 
 def get_default_py_version():
 
@@ -46,7 +78,7 @@ def get_default_py_version():
         return None
 
 def load_config(config_file):
-    file_path = Path.cwd()/config_file
+    file_path = Path(__file__).resolve().parent/config_file
     
     with open(file_path, "r", encoding="utf-8") as file:
         scaffold = yaml.safe_load(file)
@@ -128,6 +160,13 @@ def parse_args():
         action="store_true",
         help="Skip virtual environment creation.",
     )
+    
+    parser.add_argument(
+        "--output-dir",
+        type=Path,
+        default=None,
+        help="Directory where the project will be created. By default, it is created next to python-forge.",
+    )
 
 
 
@@ -138,7 +177,7 @@ def parse_args():
 
 
 
-def create_project(config, project_name, template_name, force = False):
+def create_project(config, project_name, template_name, output_dir, force = False):
 
     template = resolve_template(config, template_name)
     if template is not None:
@@ -152,8 +191,16 @@ def create_project(config, project_name, template_name, force = False):
 
     ROOT_DIR = Path(__file__).resolve().parent
     PROJECTS_DIR = ROOT_DIR.parent
-    base_path = Path(PROJECTS_DIR/project_name)
+
+    if output_dir is None:
+        target_dir = PROJECTS_DIR
+    else:
+        target_dir = Path(output_dir).expanduser().resolve()
+
+    base_path = Path(target_dir / project_name)
+    package_name = normalize_package_name(project_name)
     l.info(f"Creating project: {project_name}.")
+    l.info(f"Package name: {package_name}")
     l.info(f"Target path: {base_path}")
 
     if base_path.exists():
@@ -180,8 +227,8 @@ def create_project(config, project_name, template_name, force = False):
     
     l.info("Creating Folders:")
     for folder in folders:
-        folder = folder.replace("{{ project_name }}", project_name)
-        folder_path = Path(base_path/folder)
+        folder = render_template_text(folder, project_name)
+        folder_path = Path(base_path / folder)
         if folder_path.exists():
             continue
         folder_path.mkdir(parents=True, exist_ok = True)
@@ -191,7 +238,7 @@ def create_project(config, project_name, template_name, force = False):
 
     l.info("Creating Files:")
     for file, content in files.items():
-        file = file.replace("{{ project_name }}", project_name)
+        file = render_template_text(file, project_name)
         full_path = Path(base_path/file)
 
         if full_path.exists():
@@ -200,7 +247,7 @@ def create_project(config, project_name, template_name, force = False):
         if content is None:
             content = ""
 
-        content = content.replace("{{ project_name }}", project_name)
+        content = render_template_text(content, project_name)
         full_path.parent.mkdir(parents=True, exist_ok=True)
         full_path.write_text(content, encoding="utf-8")
 
@@ -367,9 +414,10 @@ def main():
     scaffold = load_config(CONFIG_FILE)
 
     project_path = create_project(scaffold,
-                                  project_name=args.project_name,
-                                  template_name=args.template,
-                                  force=args.force)
+                                    project_name=args.project_name,
+                                    template_name=args.template,
+                                    force=args.force,
+                                    output_dir=args.output_dir)
 
     if project_path is None:
         return
